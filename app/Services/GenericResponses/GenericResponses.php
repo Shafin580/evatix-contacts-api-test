@@ -98,12 +98,12 @@ class GenericResponses
    * @param void
    * @return json
    */
-  public function returnData($results, $code=null)
+  public function returnData($results, $code = null)
   {
     return response()->json([
-      'status_code' => $code??200,
+      'status_code' => $code ?? 200,
       'results' => $results
-    ]);
+    ], $code ?? 200);
   }
   /**
    * retrun data with Message
@@ -129,12 +129,12 @@ class GenericResponses
    * @param void
    * @return json
    */
-  public function validationError($message)
+  public function validationError($message, $code = null)
   {
     return response()->json([
-      'status_code' => 400,
+      'status_code' => $code ?? 400,
       'message' => $message
-    ]);
+    ], $code ?? 400);
   }
 
   /**

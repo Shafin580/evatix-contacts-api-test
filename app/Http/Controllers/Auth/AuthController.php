@@ -29,7 +29,7 @@ class AuthController extends Controller
         // Return Error Response if validation fails
         if ($validatedData->fails()) {
             $jsonError = response()->json($validatedData->errors()->all(), 400);
-            return GetResponses::validationError($jsonError->original);
+            return GetResponses::validationError($jsonError->original, 400);
         }
 
         // Create a User in database
@@ -62,7 +62,7 @@ class AuthController extends Controller
         // Activate User and Return Success Response of user activation
         $user->activation_token = null;
         $user->save();
-        return GetResponses::returnData(['message' => 'Account activated']);
+        return GetResponses::returnData(['message' => 'Account activated'], 200);
     }
 
     // Login and return JWT token
@@ -76,7 +76,7 @@ class AuthController extends Controller
         }
 
         // Return Success response with token if credentials match 
-        return GetResponses::returnData(["token" => "Bearer " . $token]);
+        return GetResponses::returnData(["token" => "Bearer " . $token], 200);
     }
 
     // Logout the user
@@ -84,6 +84,6 @@ class AuthController extends Controller
     {
         // Invalidate the token and return response claiming user is logged out
         JWTAuth::invalidate(JWTAuth::getToken());
-        return GetResponses::returnData(['message' => 'User has been logged out!']);
+        return GetResponses::returnData(['message' => 'User has been logged out!'], 200);
     }
 }

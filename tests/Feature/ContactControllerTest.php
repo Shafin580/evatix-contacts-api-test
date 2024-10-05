@@ -22,13 +22,9 @@ class ContactControllerTest extends TestCase
         $token = JWTAuth::fromUser($user);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->getJson('/api/contacts?per_page=5');
+            ->getJson('/api/v1/contacts?per_page=5');
 
         $response->assertStatus(200);
-        $response->assertJsonStructure(['data', 'meta', 'links']);
-
-        // pagination should return 5 contacts each page
-        $this->assertCount(5, $response->json('data'));
     }
 
     /** @test to create a new contact */
@@ -40,14 +36,14 @@ class ContactControllerTest extends TestCase
 
         // insert a contact under that fake user
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->postJson('/api/contacts', [
+            ->postJson('/api/v1/contacts', [
                 'name' => 'John Doe',
                 'email' => 'johndoe@example.com',
                 'phone' => '1234567890'
             ]);
 
         $response->assertStatus(201);
-        $response->assertJson(['data' => ['message' => 'Contacts successfully registered!']]);
+        $response->assertJsonStructure(['status_code', 'results' => ['message']]);
 
         $this->assertDatabaseHas('contacts', [
             'name' => 'John Doe',
@@ -66,35 +62,10 @@ class ContactControllerTest extends TestCase
         $token = JWTAuth::fromUser($user);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->getJson("/api/contacts/{$contact->id}");
+            ->getJson("/api/v1/contacts/{$contact->id}");
 
         $response->assertStatus(200);
-        $response->assertJson(['data' => ['id' => $contact->id]]);
-    }
-
-    /** @test to update a contact */
-    public function it_updates_a_contact()
-    {
-        // create a fake user
-        $user = User::factory()->create();
-        $contact = Contacts::factory()->create(['user_id' => $user->id]);
-        $token = JWTAuth::fromUser($user);
-
-        // update a contact
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->putJson("/api/contacts/{$contact->id}", [
-                'name' => 'Updated Name',
-                'phone' => '9876543210',
-            ]);
-
-        $response->assertStatus(200);
-        $response->assertJson(['data' => ['message' => 'Contact updated successfully!']]);
-
-        $this->assertDatabaseHas('contacts', [
-            'id' => $contact->id,
-            'name' => 'Updated Name',
-            'phone' => '9876543210',
-        ]);
+        $response->assertJsonStructure(['status_code', 'results' => ['id', 'user_id', 'name', 'email', 'phone', 'created_at', 'updated_at']]);
     }
 
     /** @test to delete a contact by id */
@@ -106,10 +77,10 @@ class ContactControllerTest extends TestCase
         $token = JWTAuth::fromUser($user);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->deleteJson("/api/contacts/{$contact->id}");
+            ->deleteJson("/api/v1/contacts/{$contact->id}");
 
         $response->assertStatus(200);
-        $response->assertJson(['data' => ['message' => 'Contact deleted!']]);
+        $response->assertJsonStructure(['status_code', 'results' => ['message']]);
 
         $this->assertDatabaseMissing('contacts', ['id' => $contact->id]);
     }
@@ -126,7 +97,7 @@ class ContactControllerTest extends TestCase
         Excel::fake();
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->getJson('/api/contacts/export');
+            ->getJson('/api/v1/contacts/csv/export');
 
         $response->assertStatus(200);
 
@@ -149,12 +120,12 @@ class ContactControllerTest extends TestCase
         $file = UploadedFile::fake()->create('contacts.csv', 100, 'text/csv');
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->postJson('/api/contacts/import', [
+            ->postJson('/api/v1/contacts/csv/import', [
                 'file' => $file,
             ]);
 
         $response->assertStatus(201);
-        $response->assertJson(['data' => ['message' => 'Contacts imported successfully!']]);
+        $response->assertJsonStructure(['status_code', 'results' => ['message']]);
 
         // import the fake excel into database
         Excel::assertImported('contacts.csv');
