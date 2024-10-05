@@ -52,18 +52,38 @@ class AuthController extends Controller
     // Activate the user account
     public function activate(Request $request)
     {
-        //
+        $user = User::where('activation_token', $request->token)->first();
+
+        // Return Error Response if token is invalid
+        if (!$user) {
+            return GetResponses::validationError('Invalid token');
+        }
+
+        // Activate User and Return Success Response of user activation
+        $user->activation_token = null;
+        $user->save();
+        return GetResponses::returnData(['message' => 'Account activated']);
     }
 
     // Login and return JWT token
     public function login(Request $request)
     {
-        //
+        $credentials = $request->only('email', 'password');
+
+        // Return Error Response if Credentials not match
+        if (!$token = JWTAuth::attempt($credentials)) {
+            return GetResponses::validationError('Unauthorized');
+        }
+
+        // Return Success response with token if credentials match 
+        return GetResponses::returnData(["token" => "Bearer " . $token]);
     }
 
     // Logout the user
     public function logout()
     {
-        //
+        // Invalidate the token and return response claiming user is logged out
+        JWTAuth::invalidate(JWTAuth::getToken());
+        return GetResponses::returnData(['message' => 'User has been logged out!']);
     }
 }
