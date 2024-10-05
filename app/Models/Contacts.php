@@ -11,4 +11,10 @@ class Contacts extends Model
 
     protected $guarded = ['id'];
 
+
+    // This method returns the relationship between user and contacts
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
