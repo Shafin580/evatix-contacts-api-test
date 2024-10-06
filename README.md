@@ -27,6 +27,10 @@ A simple CRUD API application build using laravel.
 
 The project should be running now.
 
+* To run tests, run the following command:
+
+`php artisan test`
+
 * The endpoints are stored in postman json files and included in the repo. Please go to postman_collection_environment folder which is located in the project root directory.
 
 * Please change the postman environment variable (baseUrl) according to your laravel app running on local host and port
