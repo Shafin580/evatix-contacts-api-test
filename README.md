@@ -31,4 +31,6 @@ The project should be running now.
 
 * Please change the postman environment variable (baseUrl) according to your laravel app running on local host and port
 
+* Please do not forget to update environment variable (token) after each login with the new token
+
 ### Note: The .env file is already included in the repo for easier project setup and the project is also connected to remote mysql database so no need to run migration commands.
