@@ -133,7 +133,7 @@ class ContactController extends Controller
         // authenticate user
         $user = JWTAuth::parseToken()->authenticate();
 
-        // export contacts in CSV
+        // export contacts in CSV - will be downloaded through browser if browser makes a request to this api
         return Excel::download(new ContactsExport($user), 'contacts.xlsx');
     }
 
